@@ -1,5 +1,5 @@
 {# Adapted from https://github.com/alphagov/govuk-frontend/blob/main/packages/govuk-frontend/src/govuk/macros/attributes.njk #}
-
+{# Via https://github.com/LandRegistry/govuk-frontend-jinja/blob/main/govuk_frontend_jinja/templates/macros/attributes.html #}
 {#
   Renders component attributes as string
 
@@ -65,11 +65,11 @@
 #}
 {% macro nhsukAttributes(attributes) -%}
   {#- Default attributes output -#}
-  {% set attributesHtml = attributes if attributes is string else "" %}
+  {% set ns = namespace(attributesHtml = attributes if attributes is string else "") %}   
 
   {#- Append attribute name/value pairs -#}
   {%- if attributes is mapping %}
-    {% for name, value in attributes %}
+    {% for name, value in (attributes.items() if attributes else {}.items()) %}
       {#- Detect if this is a `safe` filtered value. Just pass the value through if so. -#}
       {#- https://github.com/alphagov/govuk-frontend/issues/4937 -#}
       {% if value is mapping and not [undefined, null].includes(value.val) and value.length %}
@@ -83,11 +83,11 @@
       } %}
 
       {#- Output ` name` only (no value) for boolean attributes -#}
-      {% if options.optional == true and options.value == true %}
-        {% set attributesHtml = attributesHtml + " " + name | escape %}
+      {% if options.optional is true and options.value is true %}
+        {% set ns.attributesHtml = attributesHtml + " " + name | escape %}
       {#- Skip optional empty attributes or output ` name="value"` pair by default -#}
-      {% elif (options.optional == true and not [undefined, null, false].includes(options.value)) or options.optional != true %}
-        {% set attributesHtml = attributesHtml + " " + name | escape + '="' + options.value | escape + '"' %}
+      {% elif (options.optional is true and options.value not in [undefined, null, false] and options.value is not false) or options.optional is not true %}
+        {% set ns.attributesHtml = attributesHtml + " " + name | escape + '="' + options.value | escape + '"' %}
       {% endif %}
     {% endfor %}
   {% endif -%}
