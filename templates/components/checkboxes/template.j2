@@ -1,7 +1,7 @@
-{% from "components/error-message/macro.njk" import errorMessage -%}
-{% from "components/fieldset/macro.njk" import fieldset %}
-{% from "components/hint/macro.njk" import hint %}
-{% from "components/label/macro.njk" import label %}
+{% from "components/error-message/macro.j2" import errorMessage -%}
+{% from "components/fieldset/macro.j2" import fieldset %}
+{% from "components/hint/macro.j2" import hint %}
+{% from "components/label/macro.j2" import label %}
 {% from "macros/attributes.j2" import nhsukAttributes %}
 
 {#- If an id 'prefix' is not passed, fall back to using the name attribute
@@ -24,24 +24,24 @@
 {#- Capture the HTML so we can optionally nest it in a fieldset -#}
 {% set innerHtml %}
 {% if params.hint %}
-  {% set hintId = idPrefix + '-hint' %}
-  {% set describedBy = describedBy + ' ' + hintId if describedBy else hintId %}
+  {% set hintId = idPrefix ~ '-hint' %}
+  {% set ns.describedBy = ns.describedBy ~ ' ' + hintId if ns.describedBy else hintId %}
   {{ hint({
-    id: hintId,
-    classes: params.hint.classes,
-    attributes: params.hint.attributes,
-    html: params.hint.html,
-    text: params.hint.text
+    "id": hintId,
+    "classes": params.hint.classes,
+    "attributes": params.hint.attributes,
+    "html": params.hint.html,
+    "text": params.hint.text
   }) | indent(2) | trim }}
 {% endif %}
 {% if params.errorMessage %}
   {% set errorId = idPrefix + '-error' %}
   {% set ns.describedBy = ns.describedBy + ' ' + errorId if ns.describedBy else errorId %}
   {{ errorMessage({
-    id: errorId,
-    classes: params.errorMessage.classes,
-    html: params.errorMessage.html,
-    text: params.errorMessage.text
+    "id": errorId,
+    "classes": params.errorMessage.classes,
+    "html": params.errorMessage.html,
+    "text": params.errorMessage.text
   }) | indent(2) | trim }}
 {% endif %}
   <div class="nhsuk-checkboxes {%- if params.classes %} {{ params.classes }}{% endif %} {%- if ns.isConditional %} nhsuk-checkboxes--conditional{% endif -%}"
@@ -50,12 +50,12 @@
     {% set id = id if itemId else idPrefix ~ "-" ~ loop.index %}
     {% set name = name if name else params.name %}
     {% set conditionalId = "conditional-" + id %}
-    {% set hasHint = true if item.hint.text or item.hint.html %}
+    {% set hasHint = true if item.hint and (item.hint.text or item.hint.html) %}
     {% set itemHintId = id + '-item-hint' %}
 	  {%- if item.divider %}
     <div class="nhsuk-checkboxes__divider">{{ item.divider }}</div>
     {%- else %}
-    {% set isChecked = item.checked | default((item.value in params.values and item.checked != false) if params.values else false, true) %}
+    {% set isChecked = item.checked | default((item.value in params.get('values', []) and item.checked != false) if params.values else false, true) %}
 
     <div class="nhsuk-checkboxes__item">
       <input class="nhsuk-checkboxes__input" id="{{ id }}" name="{{ name }}" type="checkbox" value="{{ item.value }}"
@@ -67,11 +67,11 @@
       {%- if hasHint %} aria-describedby="{{ itemHintId }}"{% endif -%}
       {{- nhsukAttributes(item.attributes) }}>
       {{ label({
-        html: item.html,
-        text: item.text,
-        classes: 'nhsuk-checkboxes__label' + (' ' + item.label.classes if item.label.classes),
-        attributes: item.label.attributes,
-        for: id
+        "html": item.html,
+        "text": item.text,
+        "classes": 'nhsuk-checkboxes__label' + (' ' + item.label.classes if item.label and item.label.classes else ''),
+        "attributes": item.label.attributes if item.label else undefined,
+        "for": id
       }) | indent(6) | trim }}
       {%- if hasHint %}
       {{ hint({
@@ -95,14 +95,13 @@
 
 <div class="nhsuk-form-group {%- if params.errorMessage %} nhsuk-form-group--error{% endif %} {%- if params.formGroup and params.formGroup.classes %} {{ params.formGroup.classes }}{% endif %}">
 {% if params.fieldset %}
-  {% call fieldset({
-    describedBy: describedBy,
-    classes: params.fieldset.classes,
-    attributes: params.fieldset.attributes,
-    legend: params.fieldset.legend
-  }) %}
-  {{ innerHtml | trim | safe }}
-  {% endcall %}
+  {{ fieldset({
+    "describedBy": ns.describedBy,
+    "classes": params.fieldset.classes,
+    "attributes": params.fieldset.attributes,
+    "legend": params.fieldset.legend,
+    "innerHtml": innerHtml
+  }) }}
 {% else %}
   {{ innerHtml | trim | safe }}
 {% endif %}

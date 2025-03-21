@@ -1,31 +1,30 @@
 {% from 'components/checkboxes/macro.j2' import checkboxes %}
 <form>
   {{ checkboxes({
-    idPrefix: "contact",
-    name: "contact",
-    fieldset: {
-      legend: {
-        text: "How would you like to be contacted?",
-        classes: "nhsuk-fieldset__legend--l",
-        isPageHeading: true
+    "idPrefix": "contact",
+    "name": "contact",
+    "fieldset": {
+      "legend": {
+        "text": "How would you like to be contacted?",
+        "classes": "nhsuk-fieldset__legend--l",
+        "isPageHeading": true
       }
     },
-    hint: {
-      text: "Select all options that are relevant to you."
+    "hint": {
+      "text": "Select all options that are relevant to you.",
     },
-    items: [
+    "items": [
       {
-        value: "email",
-        text: "Email",
-        id: "contact"
+        "value": "email",
+        "text": "Email"
       },
       {
-        value: "phone",
-        text: "Phone"
+        "value": "phone",
+        "text": "Phone"
       },
       {
-        value: "text message",
-        text: "Text message"
+        "value": "text message",
+        "text": "Text message"
       }
     ]
   }) }}

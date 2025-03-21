@@ -1,4 +1,4 @@
-{% from "../../macros/attributes.njk" import nhsukAttributes %}
+{% from "macros/attributes.j2" import nhsukAttributes %}
 
 <fieldset class="nhsuk-fieldset
   {%- if params.classes %} {{ params.classes }}{% endif %}"
@@ -15,5 +15,9 @@
   {% endif -%}
   </legend>
   {%- endif %}
-{{ caller() if caller }} {#- if statement allows usage of `call` to be optional -#}
+  {% if caller %} {#- if statement allows usage of `call` to be optional -#}
+  {{ caller() }}
+  {% elif params.innerHtml %}
+  {{ params.innerHtml | trim | safe }}
+  {% endif %}
 </fieldset>
